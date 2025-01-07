@@ -8,7 +8,7 @@ function App() {
         <Router>
             <Routes>
                 <Route path="/" element={<TaskList />} />
-                <Route path="/:id" element={<TaskDetail />} /> {/* Убедитесь, что здесь используется элемент */}
+                <Route path="/task/:id" element={<TaskDetail />} /> {/* Убедитесь, что здесь используется элемент */}
             </Routes>
         </Router>
     );
