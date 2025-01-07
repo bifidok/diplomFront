@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
+class CompilableAnswer {
+    constructor(answer, lang) {
+        this.answer = answer;
+        this.lang = lang;
+    }
+}
+
 class AnswerRequest {
-    constructor(answers) {
-        this.taskToAnswer = answers; // Здесь будет ваш Map или объект с ответами
+    constructor(answers, compilableAnswers) {
+        this.taskToAnswer = answers;
+        this.taskToCompilableAnswer = compilableAnswers;
     }
 }
 
 const TaskDetail = () => {
     const [tasks, setTasks] = useState([]);
-    const [answers, setAnswers] = useState({}); // Для хранения ответов на задачи
-    const [images, setImages] = useState({}); // Для хранения изображений по задачам
+    const [answers, setAnswers] = useState({}); // Для обычных ответов
+    const [compilableAnswers, setCompilableAnswers] = useState({}); // Для компилируемых задач
+    const [selectedLanguages, setSelectedLanguages] = useState({}); // Храним язык для каждой задачи отдельно
+    const [images, setImages] = useState({});
     const { id } = useParams();
-    const [selectedLanguage, setSelectedLanguage] = useState('JAVA');
 
     useEffect(() => {
         fetch(`http://localhost:8080/task/${id}`)
@@ -21,16 +30,16 @@ const TaskDetail = () => {
                 setTasks(data);
 
                 const imagesByTask = {};
-                data.forEach(task => {
-                    // Предполагается, что task.images - это массив изображений
-                    imagesByTask[task.id] = task.images; // Сохраняем изображения по ID задачи
+                data.forEach((task) => {
+                    imagesByTask[task.id] = task.images;
                 });
 
-                setImages(imagesByTask); //
+                setImages(imagesByTask);
             })
             .catch((error) => console.error('Error fetching tasks:', error));
-    }, []);
+    }, [id]);
 
+    // Обработка изменения обычных ответов
     const handleAnswerChange = (taskId, value) => {
         setAnswers((prevAnswers) => ({
             ...prevAnswers,
@@ -38,22 +47,50 @@ const TaskDetail = () => {
         }));
     };
 
+    // Обработка изменения компилируемого ответа
+    const handleCompilableAnswerChange = (taskId, value, lang) => {
+        setCompilableAnswers((prevAnswers) => ({
+            ...prevAnswers,
+            [taskId]: new CompilableAnswer(value, lang),
+        }));
+    };
+
+    // Обработка выбора языка для каждой задачи
+    const handleLanguageChange = (taskId, event) => {
+        const newLanguage = event.target.value;
+        setSelectedLanguages((prevLanguages) => ({
+            ...prevLanguages,
+            [taskId]: newLanguage,
+        }));
+
+        // Также обновляем компилируемый ответ с новым языком
+        if (compilableAnswers[taskId]) {
+            setCompilableAnswers((prevAnswers) => ({
+                ...prevAnswers,
+                [taskId]: new CompilableAnswer(compilableAnswers[taskId].answer, newLanguage),
+            }));
+        }
+    };
+
+    // Отправка формы
     const handleSubmit = (event) => {
         event.preventDefault(); // Предотвращаем перезагрузку страницы
+
+        const answerRequest = new AnswerRequest(answers, compilableAnswers);
+
         // Отправка POST-запроса
         fetch('http://localhost:8080/answer', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(new AnswerRequest(answers)),
+            body: JSON.stringify(answerRequest),
         })
             .then((response) => response.json())
             .then((data) => {
                 console.log('Ответы отправлены:', data);
 
-                // Предполагаем, что в data содержится URL для GET-запроса
-                const url = data.resultUrl; // Измените это на правильный путь к URL в вашем ответе
+                const url = data.resultUrl; // Предполагаем, что в data содержится URL для GET-запроса
 
                 // Выполнение GET-запроса по полученному URL
                 return fetch(url);
@@ -61,13 +98,12 @@ const TaskDetail = () => {
             .then((response) => response.json())
             .then((result) => {
                 console.log('Результат GET-запроса:', result);
-                // Здесь вы можете обработать результат GET-запроса
                 const resultContainer = document.getElementById('resultContainer');
 
                 // Очистка предыдущих данных (если нужно)
                 resultContainer.innerHTML = '';
 
-                // Предполагаем, что result содержит данные, которые вы хотите отобразить
+                // Отображение результата
                 const resultText = document.createElement('p');
                 resultText.textContent = `Набрано баллов: ${result}`;
                 resultContainer.appendChild(resultText);
@@ -83,15 +119,16 @@ const TaskDetail = () => {
                     {tasks.map((task) => (
                         <li key={task.id}>
                             <h3>{task.description.text}</h3>
-                            {images[task.id] && images[task.id].map(image => (
-                                <img key={image.id} src={`http://localhost:8080/getfile?name=${encodeURIComponent(image.name)}`}/>
+                            {images[task.id] && images[task.id].map((image) => (
+                                <img key={image.id} src={`http://localhost:8080/getfile?name=${encodeURIComponent(image.name)}`} />
                             ))}
-                            <br></br>
+                            <br />
                             {task.level === 3 ? (
                                 <div>
+                                    {/* Выбор языка для каждой задачи */}
                                     <select
-                                        value={selectedLanguage || 'JAVA'}
-                                        onChange={(e) => setSelectedLanguage(e.target.value)} // Обработчик изменения языка
+                                        value={selectedLanguages[task.id] || 'JAVA'} // Язык для каждой задачи
+                                        onChange={(e) => handleLanguageChange(task.id, e)} // Передаем taskId в обработчик
                                         style={{
                                             marginBottom: '8px',
                                             padding: '8px',
@@ -107,10 +144,12 @@ const TaskDetail = () => {
                                         <option value="PASCAL">PASCAL</option>
                                         <option value="PYTHON">PYTHON</option>
                                     </select>
+
+                                    {/* Textarea для ввода кода */}
                                     <textarea
                                         placeholder="Введите ваш ответ"
-                                        value={answers[task.id] || ''}
-                                        onChange={(e) => handleAnswerChange(task.id, e.target.value)}
+                                        value={compilableAnswers[task.id]?.answer || ''} // Для каждого taskId свой ответ
+                                        onChange={(e) => handleCompilableAnswerChange(task.id, e.target.value, selectedLanguages[task.id] || 'JAVA')}
                                         style={{
                                             width: '100%',
                                             height: '100px',
@@ -123,10 +162,11 @@ const TaskDetail = () => {
                                     />
                                 </div>
                             ) : (
+                                // Для обычных задач - текстовый input
                                 <input
                                     type="text"
                                     placeholder="Введите ваш ответ"
-                                    value={answers[task.id] || ''}
+                                    value={answers[task.id] || ''} // Для обычных задач
                                     onChange={(e) => handleAnswerChange(task.id, e.target.value)}
                                 />
                             )}
@@ -138,7 +178,6 @@ const TaskDetail = () => {
             </form>
         </div>
     );
-
 };
 
 export default TaskDetail;
