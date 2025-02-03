@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import CodeMirror from '@uiw/react-codemirror';
+import { java } from '@codemirror/lang-java';
+import { cpp } from '@codemirror/lang-cpp';
+import { python } from '@codemirror/lang-python';
+import { csharp } from '@replit/codemirror-lang-csharp';
+
 
 class CompilableAnswer {
     constructor(answer, lang) {
@@ -22,6 +28,14 @@ const TaskDetail = () => {
     const [selectedLanguages, setSelectedLanguages] = useState({}); // Храним язык для каждой задачи отдельно
     const [images, setImages] = useState({});
     const { id } = useParams();
+    const codeExamples = {
+        JAVA: 'public class Main {\n    public static void main(String[] args) {\n        // Введите ваш код здесь\n    }\n}',
+        C_SHARP: 'using System;\n\nclass Program {\n    static void Main(string[] args) {\n        // Введите ваш код здесь\n    }\n}',
+        C: '#include <stdio.h>\n\nint main() {\n    // Введите ваш код здесь\n    return 0;\n}',
+        C_PLUS: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Введите ваш код здесь\n    return 0;\n}',
+        PASCAL: 'program HelloWorld;\nbegin\n    // Введите ваш код здесь\nend.',
+        PYTHON: 'def main():\n    # Введите ваш код здесь\n\nif __name__ == "__main__":\n    main()',
+    };
 
     useEffect(() => {
         fetch(`http://localhost:8080/task/${id}`)
@@ -49,6 +63,8 @@ const TaskDetail = () => {
 
     // Обработка изменения компилируемого ответа
     const handleCompilableAnswerChange = (taskId, value, lang) => {
+        value = value.replace(/\n/g, "\n")
+        console.log(value)
         setCompilableAnswers((prevAnswers) => ({
             ...prevAnswers,
             [taskId]: new CompilableAnswer(value, lang),
@@ -110,15 +126,14 @@ const TaskDetail = () => {
             })
             .catch((error) => console.error('Error submitting answers:', error));
     };
-
     return (
         <div>
             <h1>Задачи для подготовки к ЕГЭ по информатике</h1>
             <form onSubmit={handleSubmit}>
                 <ul>
-                    {tasks.map((task) => (
+                    {tasks.map((task, index) => (
                         <li key={task.id}>
-                            <h3>{task.description.text}</h3>
+                            <h3>Задача {index + 1}. {task.description.text}</h3>
                             {images[task.id] && images[task.id].map((image) => (
                                 <img key={image.id} src={`http://localhost:8080/getfile?name=${encodeURIComponent(image.name)}`} />
                             ))}
@@ -144,25 +159,16 @@ const TaskDetail = () => {
                                         <option value="PASCAL">PASCAL</option>
                                         <option value="PYTHON">PYTHON</option>
                                     </select>
-
-                                    {/* Textarea для ввода кода */}
-                                    <textarea
-                                        placeholder="Введите ваш ответ"
-                                        value={compilableAnswers[task.id]?.answer || ''} // Для каждого taskId свой ответ
-                                        onChange={(e) => handleCompilableAnswerChange(task.id, e.target.value, selectedLanguages[task.id] || 'JAVA')}
-                                        style={{
-                                            width: '100%',
-                                            height: '100px',
-                                            resize: 'vertical',
-                                            padding: '8px',
-                                            border: '1px solid #ccc',
-                                            borderRadius: '4px',
-                                            fontSize: '16px',
-                                        }}
-                                    />
+                                    <CodeMirror
+                                        theme="dark"
+                                        placeholder={codeExamples[selectedLanguages[task.id] || 'JAVA']}
+                                        onChange={(value) => handleCompilableAnswerChange(task.id, value, selectedLanguages[task.id] || 'JAVA')}
+                                        value={compilableAnswers[task.id]?.answer || ''}
+                                        height="200px"
+                                        hi
+                                        extensions={[java(), cpp(), python(), csharp()]}/>
                                 </div>
                             ) : (
-                                // Для обычных задач - текстовый input
                                 <input
                                     type="text"
                                     placeholder="Введите ваш ответ"

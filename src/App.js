@@ -7,7 +7,7 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<TaskList />} />
+                <Route path="/task" element={<TaskList />} />
                 <Route path="/task/:id" element={<TaskDetail />} /> {/* Убедитесь, что здесь используется элемент */}
             </Routes>
         </Router>
