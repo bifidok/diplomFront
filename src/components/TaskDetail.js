@@ -36,6 +36,15 @@ const TaskDetail = () => {
         PASCAL: 'program HelloWorld;\nbegin\n    // Введите ваш код здесь\nend.',
         PYTHON: 'def main():\n    # Введите ваш код здесь\n\nif __name__ == "__main__":\n    main()',
     };
+    const getLangs = (name) => {
+        const functions = {
+            JAVA: () => java(),
+            C_PLUS: () => cpp(),
+            PYTHON: () => python(),
+            C_SHARP: () => csharp()
+        };
+        return (functions[name] || functions['JAVA']).call()
+    }
 
     useEffect(() => {
         fetch(`http://localhost:8080/task/${id}`)
@@ -140,7 +149,15 @@ const TaskDetail = () => {
                             <br />
                             {task.level === 3 ? (
                                 <div>
-                                    {/* Выбор языка для каждой задачи */}
+                                    <CodeMirror
+                                        theme="dark"
+                                        placeholder={codeExamples[selectedLanguages[task.id] || 'JAVA']}
+                                        onChange={(value) => handleCompilableAnswerChange(task.id, value, selectedLanguages[task.id] || 'JAVA')}
+                                        value={compilableAnswers[task.id]?.answer || ''}
+                                        height="200px"
+                                        extensions={getLangs(selectedLanguages[task.id] || 'JAVA') ? [getLangs(selectedLanguages[task.id] || 'JAVA')] : []}
+                                    />
+                                    <h5>Выберите язык</h5>
                                     <select
                                         value={selectedLanguages[task.id] || 'JAVA'} // Язык для каждой задачи
                                         onChange={(e) => handleLanguageChange(task.id, e)} // Передаем taskId в обработчик
@@ -159,14 +176,6 @@ const TaskDetail = () => {
                                         <option value="PASCAL">PASCAL</option>
                                         <option value="PYTHON">PYTHON</option>
                                     </select>
-                                    <CodeMirror
-                                        theme="dark"
-                                        placeholder={codeExamples[selectedLanguages[task.id] || 'JAVA']}
-                                        onChange={(value) => handleCompilableAnswerChange(task.id, value, selectedLanguages[task.id] || 'JAVA')}
-                                        value={compilableAnswers[task.id]?.answer || ''}
-                                        height="200px"
-                                        hi
-                                        extensions={[java(), cpp(), python(), csharp()]}/>
                                 </div>
                             ) : (
                                 <input
