@@ -27,6 +27,7 @@ const TaskDetail = () => {
     const [compilableAnswers, setCompilableAnswers] = useState({}); // Для компилируемых задач
     const [selectedLanguages, setSelectedLanguages] = useState({}); // Храним язык для каждой задачи отдельно
     const [images, setImages] = useState({});
+    const [files, setFiles] = useState({});
     const { id } = useParams();
     const codeExamples = {
         JAVA: 'public class Main {\n    public static void main(String[] args) {\n        // Введите ваш код здесь\n    }\n}',
@@ -58,6 +59,13 @@ const TaskDetail = () => {
                 });
 
                 setImages(imagesByTask);
+
+                const filesByTask = {};
+                data.forEach((task) => {
+                    filesByTask[task.id] = task.files;
+                });
+
+                setFiles(filesByTask);
             })
             .catch((error) => console.error('Error fetching tasks:', error));
     }, [id]);
@@ -146,6 +154,20 @@ const TaskDetail = () => {
                             {images[task.id] && images[task.id].map((image) => (
                                 <img key={image.id} src={`http://localhost:8080/getfile?name=${encodeURIComponent(image.name)}`} />
                             ))}
+                            <br />
+                            {files[task.id] && files[task.id].length > 0 && (
+                                <>
+                                <h5>Вложенные файлы:</h5>
+                                {files[task.id].map((file) => (
+                                    <div key={file.id}>
+                                        <a href={`http://localhost:8080/getfile?name=${encodeURIComponent(file.name)}&isDownload=true`} download>
+                                        {file.name}
+                                            </a>
+                                            </div>
+                                            ))}
+                                        </>
+                                        )
+                                };
                             <br />
                             {task.level === 3 ? (
                                 <div>
