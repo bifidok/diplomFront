@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
+import '../css/Files.css';
 import CodeMirror from '@uiw/react-codemirror';
 import { java } from '@codemirror/lang-java';
 import { cpp } from '@codemirror/lang-cpp';
@@ -22,6 +23,7 @@ class AnswerRequest {
 }
 
 const TaskDetail = () => {
+    const navigate = useNavigate();
     const [tasks, setTasks] = useState([]);
     const [answers, setAnswers] = useState({}); // Для обычных ответов
     const [compilableAnswers, setCompilableAnswers] = useState({}); // Для компилируемых задач
@@ -46,6 +48,8 @@ const TaskDetail = () => {
         };
         return (functions[name] || functions['JAVA']).call()
     }
+    const [timeLeft, setTimeLeft] = useState(1000);
+    const [isTimerRunning, setIsTimerRunning] = useState(false);
 
     useEffect(() => {
         fetch(`http://localhost:8080/task/${id}`)
@@ -70,6 +74,38 @@ const TaskDetail = () => {
             .catch((error) => console.error('Error fetching tasks:', error));
     }, [id]);
 
+    useEffect(() => {
+        if (timeLeft <= 0) return;
+        setIsTimerRunning(true);
+
+        const interval = setInterval(() => {
+            if(isTimerRunning) {
+                setTimeLeft(prevTime => prevTime - 1);
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [isTimerRunning]); // Пустой массив зависимостей
+
+    useEffect(() => {
+        if (timeLeft <= 0) {
+            setIsTimerRunning(false)
+            console.log("Таймер закончился!");
+            handleSubmit()
+            // Здесь можно добавить дополнительные действия по завершению таймера
+        }
+    }, [timeLeft]);
+
+    const formatTime = (seconds) => {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    };
+
+    const handleHomeButton = () => {
+        navigate(`/`);
+    };
     // Обработка изменения обычных ответов
     const handleAnswerChange = (taskId, value) => {
         setAnswers((prevAnswers) => ({
@@ -81,7 +117,6 @@ const TaskDetail = () => {
     // Обработка изменения компилируемого ответа
     const handleCompilableAnswerChange = (taskId, value, lang) => {
         value = value.replace(/\n/g, "\n")
-        console.log(value)
         setCompilableAnswers((prevAnswers) => ({
             ...prevAnswers,
             [taskId]: new CompilableAnswer(value, lang),
@@ -106,9 +141,7 @@ const TaskDetail = () => {
     };
 
     // Отправка формы
-    const handleSubmit = (event) => {
-        event.preventDefault(); // Предотвращаем перезагрузку страницы
-
+    const handleSubmit = () => {
         const answerRequest = new AnswerRequest(answers, compilableAnswers);
 
         // Отправка POST-запроса
@@ -146,28 +179,45 @@ const TaskDetail = () => {
     return (
         <div>
             <h1>Задачи для подготовки к ЕГЭ по информатике</h1>
-            <form onSubmit={handleSubmit}>
+            <div className="button-container">
+                <button onClick={() => handleHomeButton()}>На главную</button>
+            </div>
+            <div style={{
+                position: 'absolute',
+                top: '15px',
+                right: '15px',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                padding: '15px',
+                borderRadius: '5px',
+                boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)'
+            }}>
+                <h5>Осталось времени: {formatTime(timeLeft)}</h5>
+            </div>
+            <form onSubmit={(e) => { e.preventDefault(); handleSubmit();}}>
                 <ul>
                     {tasks.map((task, index) => (
                         <li key={task.id}>
-                            <h3>Задача {index + 1}. {task.description.text}</h3>
-                            {images[task.id] && images[task.id].map((image) => (
-                                <img key={image.id} src={`http://localhost:8080/getfile?name=${encodeURIComponent(image.name)}`} />
-                            ))}
+                            <p>Задача {index + 1}. {task.description.text}</p>
+                            <div className="files-container">
+                                {images[task.id] && images[task.id].map((image) => (
+                                    <img key={image.id} src={`http://localhost:8080/getfile?name=${encodeURIComponent(image.name)}`} />
+                                ))}
+                            </div>
                             <br />
                             {files[task.id] && files[task.id].length > 0 && (
                                 <>
-                                <h5>Вложенные файлы:</h5>
-                                {files[task.id].map((file) => (
-                                    <div key={file.id}>
-                                        <a href={`http://localhost:8080/getfile?name=${encodeURIComponent(file.name)}&isDownload=true`} download>
-                                        {file.name}
+                                    <h5 className="info-file-item">Вложенные файлы:</h5>
+                                    <div className="files-container">
+                                    {files[task.id].map((file, index) => (
+                                        <div key={file.id} className="file-item">
+                                            <a href={`http://localhost:8080/getfile?name=${encodeURIComponent(file.name)}&isDownload=true`} download>
+                                            Файл {index + 1}
                                             </a>
-                                            </div>
-                                            ))}
-                                        </>
-                                        )
-                                };
+                                        </div>
+                                    ))}
+                                    </div>
+                                </>
+                            )}
                             <br />
                             {task.level === 3 ? (
                                 <div>

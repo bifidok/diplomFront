@@ -1,0 +1,28 @@
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Центрируем по горизонтали */
+    justify-content: center; /* Центрируем по вертикали */
+    height: 10vh; /* Занимаем всю высоту экрана */
+}
+
+.button-container {
+    display: flex;
+    flex-direction: row; /* Располагаем кнопки вертикально */
+    gap: 10px; /* Отступ между кнопками */
+}
+
+button {
+    padding: 10px 20px; /* Увеличиваем отступы внутри кнопок */
+    font-size: 16px; /* Увеличиваем размер шрифта */
+    cursor: pointer; /* Указываем, что кнопка кликабельна */
+    border: none; /* Убираем стандартную рамку */
+    border-radius: 5px; /* Скругляем углы кнопок */
+    background-color: #012D43; /* Цвет фона кнопок */
+    color: white; /* Цвет текста на кнопках */
+    transition: background-color 0.3s; /* Плавный переход цвета фона */
+}
+
+button:hover {
+    background-color: #001D2B; /* Цвет фона при наведении */
+}
