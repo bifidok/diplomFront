@@ -56,19 +56,23 @@ const TaskDetail = () => {
             .then((response) => response.json())
             .then((data) => {
                 setTasks(data);
-
+                const initialAnswers = {};
+                const initialCompilableAnswers = {};
                 const imagesByTask = {};
+                const filesByTask = {};
                 data.forEach((task) => {
                     imagesByTask[task.id] = task.images;
+                    filesByTask[task.id] = task.files;
+                    if (task.level === 3) {
+                        initialCompilableAnswers[task.id] = new CompilableAnswer('', 'JAVA'); // Начальный язык - JAVA
+                    } else {
+                        initialAnswers[task.id] = ''; // Пустая строка для обычных ответов
+                    }
                 });
 
                 setImages(imagesByTask);
-
-                const filesByTask = {};
-                data.forEach((task) => {
-                    filesByTask[task.id] = task.files;
-                });
-
+                setAnswers(initialAnswers);
+                setCompilableAnswers(initialCompilableAnswers);
                 setFiles(filesByTask);
             })
             .catch((error) => console.error('Error fetching tasks:', error));
@@ -253,7 +257,7 @@ const TaskDetail = () => {
                                 <input
                                     type="text"
                                     placeholder="Введите ваш ответ"
-                                    value={answers[task.id] || ''} // Для обычных задач
+                                    value={answers[task.id] || ''}
                                     onChange={(e) => handleAnswerChange(task.id, e.target.value)}
                                 />
                             )}

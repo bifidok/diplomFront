@@ -1,0 +1,9 @@
+.auth-buttons {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.auth-buttons button {
+    margin-right: 10px;
+}
