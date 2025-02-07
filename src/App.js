@@ -5,6 +5,7 @@ import TaskDetail from './components/TaskDetail';
 import Home from './components/Home';
 import Auth from './components/Auth';
 import Register from './components/Register';
+import Account from './components/Account';
 
 function App() {
     return (
@@ -12,6 +13,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Auth />} />
+                <Route path="/account" element={<Account />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/task" element={<TaskList />} />
                 <Route path="/task/:id" element={<TaskDetail />} /> {}

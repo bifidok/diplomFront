@@ -159,6 +159,7 @@ const TaskDetail = () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(answerRequest),
+            credentials: 'include'
         })
             .then((response) => response.json())
             .then((data) => {

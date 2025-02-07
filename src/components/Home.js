@@ -43,14 +43,32 @@ const Home = () => {
     };
 
     const handleProfileClick = () => {
-        navigate(`/profile`);
+        navigate(`/account`);
+    };
+    const handleLogoutClick = async () => {
+        try {
+            // Отправляем запрос на сервер для выхода
+            await fetch('http://localhost:8080/logout', {
+                method: 'POST',
+                credentials: 'include',
+            });
+
+            console.log('Выход выполнен успешно');
+
+            window.location.reload()
+        } catch (error) {
+            console.error('Ошибка при выходе:', error);
+        }
     };
 
     return (
         <div className="home-container">
             <div className="auth-buttons">
                 {isUserLoggedIn ? (
-                    <button onClick={handleProfileClick}>Личный кабинет</button>
+                    <>
+                        <button onClick={handleProfileClick}>Личный кабинет</button>
+                        <button onClick={handleLogoutClick}>Выйти</button>
+                    </>
                 ) : (
                     <>
                         <button onClick={handleLoginClick}>Войти</button>
@@ -58,7 +76,7 @@ const Home = () => {
                     </>
                 )}
             </div>
-            <h2>Выберите задачу:</h2>
+            <h2>Выберите вариант:</h2>
             <div className="button-container">
                 <button onClick={() => handleButtonClick('426')}>Вариант 1</button>
                 <button onClick={() => handleButtonClick('4235')}>Вариант 2</button>
