@@ -55,7 +55,11 @@ const TaskDetail = () => {
         fetch(`http://localhost:8080/task/${id}`)
             .then((response) => response.json())
             .then((data) => {
-                setTasks(data);
+                const tasksWithScores = data.map((task) => ({
+                    ...task,
+                    score: null, // Инициализируем баллы как null
+                }));
+                setTasks(tasksWithScores);
                 const initialAnswers = {};
                 const initialCompilableAnswers = {};
                 const imagesByTask = {};
@@ -169,14 +173,12 @@ const TaskDetail = () => {
             .then((result) => {
                 console.log('Результат GET-запроса:', result);
                 const resultContainer = document.getElementById('resultContainer');
-
-                // Очистка предыдущих данных (если нужно)
-                resultContainer.innerHTML = '';
-
-                // Отображение результата
-                const resultText = document.createElement('p');
-                resultText.textContent = `Набрано баллов: ${result}`;
-                resultContainer.appendChild(resultText);
+                setTasks((prevTasks) =>
+                    prevTasks.map((task) => ({
+                        ...task,
+                        score: result.taskIdToScore[task.id] || 0, // Устанавливаем баллы из ответа сервера
+                    }))
+                );
             })
             .catch((error) => console.error('Error submitting answers:', error));
     };
@@ -201,7 +203,14 @@ const TaskDetail = () => {
                 <ul>
                     {tasks.map((task, index) => (
                         <li key={task.id}>
-                            <p>Задача {index + 1}. {task.description.text}</p>
+                            <p>
+                                Задача {index + 1}. {task.description.text}{' '}
+                                {task.score !== null && (
+                                    <span style={{ color: task.score > 0 ? 'green' : 'red' }}>
+                                        ({task.score} баллов)
+                                    </span>
+                                )}
+                            </p>
                             <div className="files-container">
                                 {images[task.id] && images[task.id].map((image) => (
                                     <img key={image.id} src={`http://localhost:8080/getfile?name=${encodeURIComponent(image.name)}`} />

@@ -60,11 +60,11 @@ const Home = () => {
             </div>
             <h2>Выберите задачу:</h2>
             <div className="button-container">
-                <button onClick={() => handleButtonClick('426')}>Задача 1</button>
-                <button onClick={() => handleButtonClick('4235')}>Задача 2</button>
-                <button onClick={() => handleButtonClick('126')}>Задача 3</button>
-                <button onClick={() => handleButtonClick('42365')}>Задача 4</button>
-                <button onClick={() => handleRandomButtonClick()}>Сгенерировать случайную</button>
+                <button onClick={() => handleButtonClick('426')}>Вариант 1</button>
+                <button onClick={() => handleButtonClick('4235')}>Вариант 2</button>
+                <button onClick={() => handleButtonClick('126')}>Вариант 3</button>
+                <button onClick={() => handleButtonClick('42365')}>Вариант 4</button>
+                <button onClick={() => handleRandomButtonClick()}>Сгенерировать случайный</button>
             </div>
         </div>
     );
