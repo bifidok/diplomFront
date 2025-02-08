@@ -6,6 +6,7 @@ import { java } from '@codemirror/lang-java';
 import { cpp } from '@codemirror/lang-cpp';
 import { python } from '@codemirror/lang-python';
 import { csharp } from '@replit/codemirror-lang-csharp';
+import { initialTimeLeft } from './Config';
 
 
 class CompilableAnswer {
@@ -16,7 +17,8 @@ class CompilableAnswer {
 }
 
 class AnswerRequest {
-    constructor(answers, compilableAnswers) {
+    constructor(hashcode, answers, compilableAnswers) {
+        this.hashcode = hashcode;
         this.taskToAnswer = answers;
         this.taskToCompilableAnswer = compilableAnswers;
     }
@@ -48,7 +50,7 @@ const TaskDetail = () => {
         };
         return (functions[name] || functions['JAVA']).call()
     }
-    const [timeLeft, setTimeLeft] = useState(1000);
+    const [timeLeft, setTimeLeft] = useState(initialTimeLeft);
     const [isTimerRunning, setIsTimerRunning] = useState(false);
 
     useEffect(() => {
@@ -150,7 +152,7 @@ const TaskDetail = () => {
 
     // Отправка формы
     const handleSubmit = () => {
-        const answerRequest = new AnswerRequest(answers, compilableAnswers);
+        const answerRequest = new AnswerRequest(id, answers, compilableAnswers);
 
         // Отправка POST-запроса
         fetch('http://localhost:8080/answer', {
@@ -177,7 +179,7 @@ const TaskDetail = () => {
                 setTasks((prevTasks) =>
                     prevTasks.map((task) => ({
                         ...task,
-                        score: result.taskIdToScore[task.id] || 0, // Устанавливаем баллы из ответа сервера
+                        score: result.taskIdToDetail[task.id].score || 0, // Устанавливаем баллы из ответа сервера
                     }))
                 );
             })
