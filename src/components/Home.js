@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import '../css/Home.css';
 import '../css/Auth.css';
+import '../css/App.css';
 
 const Home = () => {
     const navigate = useNavigate();
@@ -76,7 +77,7 @@ const Home = () => {
                     </>
                 )}
             </div>
-            <h2>Выберите вариант:</h2>
+            <h2 className="text-heading-default">Выберите вариант:</h2>
             <div className="button-container">
                 <button onClick={() => handleButtonClick('46612798')}>Вариант 1</button>
                 <button onClick={() => handleButtonClick('46612800')}>Вариант 2</button>

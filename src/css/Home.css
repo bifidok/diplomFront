@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
 .home-container {
     display: flex;
     flex-direction: column;
@@ -13,16 +15,25 @@
 }
 
 button {
-    padding: 10px 20px; /* Увеличиваем отступы внутри кнопок */
-    font-size: 16px; /* Увеличиваем размер шрифта */
+    padding: 10px 10px; /* Увеличиваем отступы внутри кнопок */
+    font-family: "Russo One", serif;
+    box-shadow: 0 0px 10px 0 rgba(0,0,0,0.5);
+    font-weight: 400;
+    font-style: normal;
+    font-size: 14px; /* Увеличиваем размер шрифта */
     cursor: pointer; /* Указываем, что кнопка кликабельна */
     border: none; /* Убираем стандартную рамку */
-    border-radius: 5px; /* Скругляем углы кнопок */
-    background-color: #012D43; /* Цвет фона кнопок */
+    border-radius: 100px; /* Скругляем углы кнопок */
+    background-color: rgb(1,45,67,50%); /* Цвет фона кнопок */
     color: white; /* Цвет текста на кнопках */
     transition: background-color 0.3s; /* Плавный переход цвета фона */
 }
 
 button:hover {
     background-color: #001D2B; /* Цвет фона при наведении */
+}
+
+.text-heading-default{
+    font-family: "Russo One", serif;
+    color: #ffffff;
 }

@@ -2,8 +2,10 @@
     max-width: 400px;
     margin: auto;
     padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: 1px solid #132f56;
+    border-radius: 15px;
+    background-color: #132f56; /* Фон формы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Тень */
 }
 
 .login-form-container h2 {
@@ -14,7 +16,45 @@
     margin-bottom: 15px;
 }
 
+.input-group {
+    margin-bottom: 15px; /* Отступ между полями */
+    text-align: left;
+}
+
+/* Лейблы */
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+/* Поля ввода */
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc; /* Граница */
+    border-radius: 5px; /* Закругление углов */
+    box-sizing: border-box; /* Учитываем padding и border в ширине */
+    transition: border-color 0.3s;
+}
+
+/* Эффект при фокусе */
+.input-group input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Сообщение об ошибке */
 .error-message {
+    margin-top: 10px;
     color: red;
-    text-align: center;
+    font-size: 14px;
+    background-color: #132f56;
+}
+.error-list {
+    margin-top: 10px;
+    padding: 0;
+    list-style-type: none; /* Убираем маркеры списка */
 }

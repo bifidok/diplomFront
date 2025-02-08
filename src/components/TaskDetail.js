@@ -34,6 +34,7 @@ const TaskDetail = () => {
     const [files, setFiles] = useState({});
     const [isSubmitted, setIsSubmitted] = useState(false); // Новое состояние для отслеживания отправки
     const { id } = useParams();
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const codeExamples = {
         JAVA: 'public class Main {\n    public static void main(String[] args) {\n        // Введите ваш код здесь\n    }\n}',
         C_SHARP: 'using System;\n\nclass Program {\n    static void Main(string[] args) {\n        // Введите ваш код здесь\n    }\n}',
@@ -193,22 +194,53 @@ const TaskDetail = () => {
             })
             .catch((error) => console.error('Error submitting answers:', error));
     };
+
+    const handleConfirm = () => {
+        setIsModalOpen(false);
+        handleHomeButton();
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false); // Закрываем модальное окно
+    };
+
+    const handleExitButtonClick = () => {
+        setIsModalOpen(true);
+    };
     return (
         <div>
-            <h1>Задачи для подготовки к ЕГЭ по информатике</h1>
-            <div className="button-container">
-                <button onClick={() => handleHomeButton()}>На главную</button>
+            <h1 className="text-heading-default">Задачи для подготовки к ЕГЭ по информатике</h1>
+            <div className="text-heading-default">
+                <div className="button-container">
+                    <button onClick={handleExitButtonClick}>На главную</button>
+                </div>
+                {isModalOpen && (
+                    <div className="modal-overlay">
+                        <div className="modal-content">
+                            <h3>Подтверждение действия</h3>
+                            <p>Вы точно хотите перейти на главную страницу?</p>
+                            <div className="modal-buttons">
+                                <button className="confirm-button" onClick={handleConfirm}>
+                                    Да
+                                </button>
+                                <button className="cancel-button" onClick={handleCancel}>
+                                    Нет
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
             <div style={{
                 position: 'absolute',
                 top: '15px',
                 right: '15px',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                backgroundColor: 'rgb(16,32,71,0.5)',
                 padding: '15px',
                 borderRadius: '5px',
                 boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)'
             }}>
-                <h5>{formatTime(timeLeft)}</h5>
+                <h5 className="text-heading-default">{formatTime(timeLeft)}</h5>
             </div>
             <form onSubmit={(e) => { e.preventDefault(); handleSubmit();}}>
                 <ul>
@@ -261,8 +293,8 @@ const TaskDetail = () => {
                                             marginBottom: '8px',
                                             padding: '8px',
                                             border: '1px solid #ccc',
-                                            borderRadius: '4px',
-                                            fontSize: '16px',
+                                            borderRadius: '100px',
+                                            fontSize: '13px',
                                         }}
                                     >
                                         <option value="JAVA">JAVA</option>

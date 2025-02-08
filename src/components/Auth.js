@@ -6,13 +6,24 @@ import '../css/LoginForm.css'; // Добавьте стили, если нужн
 const Auth = () => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [errors, setErrors] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); // Сброс ошибки
+        setErrors('');
+        const newErrors = [];
 
+        if (!login) {
+            newErrors.push('Логин не может быть пустым');
+        }
+        if (!password) {
+            newErrors.push('Пароль не может быть пустым');
+        }
+        if (newErrors.length > 0) {
+            setErrors(newErrors); // Устанавливаем ошибки
+            return;
+        }
         try {
             const response = await axiosInstance.post('http://localhost:8080/login', { login, password });
             ;
@@ -23,9 +34,9 @@ const Auth = () => {
         } catch (err) {
             // Обработка ошибок
             if (err.response && err.response.data) {
-                setError(err.response.data); // Установка сообщения об ошибке
+                setErrors(err.response.data); // Установка сообщения об ошибке
             } else {
-                setError('Произошла ошибка при входе');
+                setErrors('Произошла ошибка при входе');
             }
         }
     };
@@ -35,32 +46,36 @@ const Auth = () => {
     };
 
     return (
-        <div>
+        <div className="text-heading-default">
             <div className="button-container">
                 <button onClick={() => handleHomeButton()}>На главную</button>
             </div>
             <div className="login-form-container">
                 <h2>Авторизация</h2>
                 <form onSubmit={handleSubmit}>
-                    <div>
-                        <label>Логин:</label>
+                    <label>Логин:</label>
+                    <div className="input-group">
                         <input
                             type="text"
                             value={login}
                             onChange={(e) => setLogin(e.target.value)}
-                            required
                         />
                     </div>
-                    <div>
-                        <label>Пароль:</label>
+                    <label>Пароль:</label>
+                    <div className="input-group">
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            required
                         />
                     </div>
-                    {error && <div className="error-message">{error}</div>}
+                    {errors.length > 0 && (
+                        <ul className="error-list">
+                            {errors.map((error, index) => (
+                                <li key={index} className="error-message">{error}</li>
+                            ))}
+                        </ul>
+                    )}
                     <button type="submit">Войти</button>
                 </form>
             </div>
