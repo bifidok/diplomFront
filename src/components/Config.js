@@ -1,1 +1,1 @@
-export const initialTimeLeft = 1000;
+export const initialTimeLeft = 10;

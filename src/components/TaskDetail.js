@@ -32,6 +32,7 @@ const TaskDetail = () => {
     const [selectedLanguages, setSelectedLanguages] = useState({}); // Храним язык для каждой задачи отдельно
     const [images, setImages] = useState({});
     const [files, setFiles] = useState({});
+    const [isSubmitted, setIsSubmitted] = useState(false); // Новое состояние для отслеживания отправки
     const { id } = useParams();
     const codeExamples = {
         JAVA: 'public class Main {\n    public static void main(String[] args) {\n        // Введите ваш код здесь\n    }\n}',
@@ -89,13 +90,13 @@ const TaskDetail = () => {
         setIsTimerRunning(true);
 
         const interval = setInterval(() => {
-            if(isTimerRunning) {
+            if (isTimerRunning && !isSubmitted) {
                 setTimeLeft(prevTime => prevTime - 1);
             }
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [isTimerRunning]); // Пустой массив зависимостей
+    }, [isTimerRunning, isSubmitted]); // Пустой массив зависимостей
 
     useEffect(() => {
         if (timeLeft <= 0) {
@@ -110,7 +111,13 @@ const TaskDetail = () => {
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
         const secs = seconds % 60;
-        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        if (seconds === 0) {
+            return `Время вышло`;
+        }
+        if (isSubmitted) {
+            return `Ответы отправлены`;
+        }
+        return `Осталось времени: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     };
 
     const handleHomeButton = () => {
@@ -152,6 +159,7 @@ const TaskDetail = () => {
 
     // Отправка формы
     const handleSubmit = () => {
+        setIsSubmitted(true);
         const answerRequest = new AnswerRequest(id, answers, compilableAnswers);
 
         // Отправка POST-запроса
@@ -200,7 +208,7 @@ const TaskDetail = () => {
                 borderRadius: '5px',
                 boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)'
             }}>
-                <h5>Осталось времени: {formatTime(timeLeft)}</h5>
+                <h5>{formatTime(timeLeft)}</h5>
             </div>
             <form onSubmit={(e) => { e.preventDefault(); handleSubmit();}}>
                 <ul>
@@ -276,8 +284,14 @@ const TaskDetail = () => {
                         </li>
                     ))}
                 </ul>
-                <div id="resultContainer"></div>
-                <button type="submit">Отправить ответы</button>
+                <div id="resultContainer">
+                    <button
+                        type="submit"
+                        disabled={timeLeft <= 0 || isSubmitted} // Делаем кнопку неактивной, если время вышло или форма отправлена
+                    >
+                        {isSubmitted ? 'Ответы отправлены' : timeLeft <= 0 ? 'Время вышло' : 'Отправить ответы'}
+                    </button>
+                </div>
             </form>
         </div>
     );
