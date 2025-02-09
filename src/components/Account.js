@@ -51,12 +51,12 @@ const Account = () => {
     const { login, sessions } = accountDetails;
 
     return (
-        <div>
+        <div className="text-heading-default-black">
             <div className="button-container">
                 <button onClick={() => handleHomeButton()}>На главную</button>
             </div>
-            <h1>История попыток</h1>
-            <p><strong>Логин:</strong> {login}</p>
+            <h1 className="text-heading-default">История попыток</h1>
+            <p className="text-heading-default">Логин: {login}</p>
 
             {sessions.length === 0 ? (
                 <p>Нет сохраненных попыток.</p>
@@ -76,7 +76,7 @@ const Account = () => {
                                     // Перебираем отсортированные задачи
                                     .map(([taskId, taskDetail]) => (
                                         <li key={taskId}>
-                                            Задача {taskDetail.index}: {taskDetail.score} баллов
+                                            Задача {taskDetail.index + 1}: {taskDetail.score} баллов
                                         </li>
                                     ))}
                             </ul>

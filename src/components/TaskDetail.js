@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import '../css/Files.css';
+import '../css/ModalWindow.css';
 import CodeMirror from '@uiw/react-codemirror';
 import { java } from '@codemirror/lang-java';
 import { cpp } from '@codemirror/lang-cpp';
@@ -35,6 +36,7 @@ const TaskDetail = () => {
     const [isSubmitted, setIsSubmitted] = useState(false); // Новое состояние для отслеживания отправки
     const { id } = useParams();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCompilerOpen, setIsCompilerOpen] = useState(false);
     const codeExamples = {
         JAVA: 'public class Main {\n    public static void main(String[] args) {\n        // Введите ваш код здесь\n    }\n}',
         C_SHARP: 'using System;\n\nclass Program {\n    static void Main(string[] args) {\n        // Введите ваш код здесь\n    }\n}',
@@ -53,6 +55,8 @@ const TaskDetail = () => {
         return (functions[name] || functions['JAVA']).call()
     }
     const [timeLeft, setTimeLeft] = useState(initialTimeLeft);
+    const [selectedCompilerLanguage, setSelectedCompilerLanguage] = useState('JAVA');
+    const [compilerValue, setCompilerValue] = useState();
     const [isTimerRunning, setIsTimerRunning] = useState(false);
 
     useEffect(() => {
@@ -141,6 +145,11 @@ const TaskDetail = () => {
         }));
     };
 
+    const handleCompilerValueChange = (value) => {
+        value = value.replace(/\n/g, "\n")
+        setCompilerValue(value)
+    };
+
     // Обработка выбора языка для каждой задачи
     const handleLanguageChange = (taskId, event) => {
         const newLanguage = event.target.value;
@@ -157,6 +166,18 @@ const TaskDetail = () => {
             }));
         }
     };
+
+    const changeCompilerState = () => {
+        if (isCompilerOpen) {
+            setIsCompilerOpen(false);
+        } else {
+            setIsCompilerOpen(true);
+        }
+    }
+
+    const closeCompiler = () => {
+        setIsCompilerOpen(false);
+    }
 
     // Отправка формы
     const handleSubmit = () => {
@@ -184,7 +205,6 @@ const TaskDetail = () => {
             .then((response) => response.json())
             .then((result) => {
                 console.log('Результат GET-запроса:', result);
-                const resultContainer = document.getElementById('resultContainer');
                 setTasks((prevTasks) =>
                     prevTasks.map((task) => ({
                         ...task,
@@ -209,6 +229,79 @@ const TaskDetail = () => {
     };
     return (
         <div>
+            <div className="modal-window"
+            style={{
+                zIndex: 1000
+            }}>
+                <button id="openModalButton" onClick={changeCompilerState}>
+                    Компилятор
+                </button>
+            </div>
+            {isCompilerOpen && (
+                <div
+                    onClick={closeCompiler}
+                    style={{
+                        display: 'block',
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        zIndex: 1000,
+                    }}
+                ></div>
+            )}
+            {isCompilerOpen && (
+                <div
+                    style={{
+                        display: 'block',
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        backgroundColor: 'white',
+                        padding: 20,
+                        borderRadius: 10,
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                        zIndex: 1000,
+                        width: window.innerWidth * 0.6,
+                        height: window.innerHeight * 0.6,
+                        overflowY: 'auto',
+                    }}
+                >
+                    <div>
+                        <CodeMirror
+                            theme="dark"
+                            placeholder={codeExamples[selectedCompilerLanguage]}
+                            onChange={(value) => handleCompilerValueChange(value)}
+                            value={compilerValue}
+                            height="300px" // Динамическая высота
+                            extensions={getLangs(selectedCompilerLanguage)}
+                        />
+                        <h5>Выберите язык</h5>
+                        <select
+                            value={selectedCompilerLanguage}
+                            onChange={(e) => setSelectedCompilerLanguage(e.target.value)}
+                            style={{
+                                marginBottom: '8px',
+                                padding: '8px',
+                                border: '1px solid #ccc',
+                                borderRadius: '100px',
+                                fontSize: '13px',
+                            }}
+                        >
+                            <option value="JAVA">JAVA</option>
+                            <option value="C_SHARP">C#</option>
+                            <option value="C">C</option>
+                            <option value="C_PLUS">C++</option>
+                            <option value="PASCAL">PASCAL</option>
+                            <option value="PYTHON">PYTHON</option>
+                        </select>
+                    </div>
+                    {/* Элемент для изменения размера */}
+                </div>
+            )}
             <h1 className="text-heading-default">Задачи для подготовки к ЕГЭ по информатике</h1>
             <div className="text-heading-default">
                 <div className="button-container">

@@ -1,0 +1,29 @@
+.modal-window {
+    position: fixed;
+    top: 200px;
+    right: 0px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+}
+
+.resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    background-color: #007bff;
+    cursor: nwse-resize; /* Курсор для изменения размера */
+    border-radius: 50%; /* Делаем уголок круглым */
+}
+
+.element::-webkit-scrollbar {
+    width: 0;
+}
+
+::-webkit-scrollbar {
+    width: 0;
+}
