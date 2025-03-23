@@ -4,12 +4,13 @@ import { useNavigate } from 'react-router-dom';
 const TaskList = () => {
     const [tasks, setTasks] = useState([]);
     const navigate = useNavigate(); // Хук для редиректа
+    const API_URL = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
-        fetch('http://localhost:8080/task/generator')
+        fetch(`${API_URL}/task/generator`)
             .then((response) => response.json())
             .then((hashcode) => {
-                const url = `http://localhost:8080/task/` + hashcode; // Формируем URL для получения задачи
+                const url = `${API_URL}/task/` + hashcode; // Формируем URL для получения задачи
                 // Редиректим на страницу TaskDetail
                 navigate(`/task/${hashcode}`);
 

@@ -8,10 +8,12 @@ import '../css/App.css';
 const Home = () => {
     const navigate = useNavigate();
     const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+    const API_URL = process.env.REACT_APP_API_URL;
+
     const checkUserStatus = async () => {
         try {
             axios.defaults.withCredentials = true
-            const response = await axios.get('http://localhost:8080/user');
+            const response = await axios.get(`${API_URL}/user`);
             if (response.status === 204) {
                 setIsUserLoggedIn(false); // Пользователь не авторизован
             } else {
@@ -49,7 +51,7 @@ const Home = () => {
     const handleLogoutClick = async () => {
         try {
             // Отправляем запрос на сервер для выхода
-            await fetch('http://localhost:8080/logout', {
+            await fetch(`${API_URL}/logout`, {
                 method: 'POST',
                 credentials: 'include',
             });

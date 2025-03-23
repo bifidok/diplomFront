@@ -8,6 +8,7 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState('');
     const navigate = useNavigate();
+    const API_URL = process.env.REACT_APP_API_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -26,7 +27,7 @@ const Register = () => {
         }
 
         try {
-            const response = await axiosInstance.post('http://localhost:8080/register', { login, password });
+            const response = await axiosInstance.post(`${API_URL}/register`, { login, password });
             ;
             if (response.status === 200) {
                 navigate('/');

@@ -8,7 +8,7 @@ import { cpp } from '@codemirror/lang-cpp';
 import { python } from '@codemirror/lang-python';
 import { csharp } from '@replit/codemirror-lang-csharp';
 import { initialTimeLeft } from './Config';
-
+import axiosInstance from "./AxiosConfig";
 
 class CompilableAnswer {
     constructor(answer, lang) {
@@ -26,6 +26,7 @@ class AnswerRequest {
 }
 
 const TaskDetail = () => {
+    const API_URL = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
     const [tasks, setTasks] = useState([]);
     const [answers, setAnswers] = useState({}); // Для обычных ответов
@@ -36,6 +37,7 @@ const TaskDetail = () => {
     const [isSubmitted, setIsSubmitted] = useState(false); // Новое состояние для отслеживания отправки
     const { id } = useParams();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [executionResult, setExecutionResult] = useState();
     const [isCompilerOpen, setIsCompilerOpen] = useState(false);
     const codeExamples = {
         JAVA: 'public class Main {\n    public static void main(String[] args) {\n        // Введите ваш код здесь\n    }\n}',
@@ -58,9 +60,8 @@ const TaskDetail = () => {
     const [selectedCompilerLanguage, setSelectedCompilerLanguage] = useState('JAVA');
     const [compilerValue, setCompilerValue] = useState();
     const [isTimerRunning, setIsTimerRunning] = useState(false);
-
     useEffect(() => {
-        fetch(`http://localhost:8080/task/${id}`)
+        fetch(`${API_URL}/task/${id}`)
             .then((response) => response.json())
             .then((data) => {
                 const tasksWithScores = data.map((task) => ({
@@ -179,13 +180,59 @@ const TaskDetail = () => {
         setIsCompilerOpen(false);
     }
 
+    useEffect(() => {
+        const handleBeforeUnload = (event) => {
+            event.preventDefault();
+            // Показываем стандартное сообщение браузера (опционально)
+            event.returnValue = '';
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
+
+    const sendCodeToServer = async () => {
+        const requestData = {
+            code: compilerValue, // Текущий код из CodeMirror
+            lang: selectedCompilerLanguage, // Выбранный язык программирования
+        };
+
+        try {
+            const response = await axiosInstance.post(`${API_URL}/execute`, requestData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            // Обработка успешного ответа
+            setExecutionResult(response.data); // Сохраняем результат выполнения
+        } catch (error) {
+            console.error('Ошибка при отправке кода:', error);
+
+            // Обработка ошибки
+            if (error.response) {
+                // Сервер вернул ошибку (например, 4xx или 5xx)
+                setExecutionResult({ error: `Ошибка сервера: ${error.response.status}` });
+            } else if (error.request) {
+                // Запрос был отправлен, но ответ не получен
+                setExecutionResult({ error: 'Нет ответа от сервера.' });
+            } else {
+                // Другая ошибка
+                setExecutionResult({ error: 'Не удалось выполнить код. Попробуйте позже.' });
+            }
+        }
+    };
+
     // Отправка формы
     const handleSubmit = () => {
         setIsSubmitted(true);
         const answerRequest = new AnswerRequest(id, answers, compilableAnswers);
 
         // Отправка POST-запроса
-        fetch('http://localhost:8080/answer', {
+        fetch(`${API_URL}/answer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -298,8 +345,42 @@ const TaskDetail = () => {
                             <option value="PASCAL">PASCAL</option>
                             <option value="PYTHON">PYTHON</option>
                         </select>
+
+                        <div className="button-container">
+                            <button
+                                onClick={sendCodeToServer}
+                                style={{
+                                    position: 'absolute', // Абсолютное позиционирование
+                                    bottom: '16px', // Отступ снизу
+                                    right: '16px', // Отступ справа
+                                }}
+                            >
+                                Выполнить
+                            </button>
+                        </div>
+                        {executionResult && (
+                            <div
+                                style={{
+                                    marginTop: '16px',
+                                    padding: '10px',
+                                    backgroundColor: executionResult.error ? '#f8d7da' : '#d4edda',
+                                    color: executionResult.error ? '#721c24' : '#155724',
+                                    border: executionResult.error ? '1px solid #f5c6cb' : '1px solid #c3e6cb',
+                                    borderRadius: '4px',
+                                    maxWidth: '100%', // Ограничение ширины
+                                    maxHeight: '200px', // Ограничение высоты
+                                    overflow: 'auto', // Добавление прокрутки при необходимости
+                                    wordWrap: 'break-word', // Перенос длинных строк
+                                }}
+                            >
+                                <strong>{executionResult.error ? 'Ошибка:' : 'Результат:'}</strong>
+                                <pre style={{
+                                    whiteSpace: 'pre-wrap', // Перенос текста внутри pre
+                                    margin: 0, // Убираем отступы
+                                }}>{executionResult.error || executionResult.output}</pre>
+                            </div>
+                        )}
                     </div>
-                    {/* Элемент для изменения размера */}
                 </div>
             )}
             <h1 className="text-heading-default">Задачи для подготовки к ЕГЭ по информатике</h1>
@@ -349,7 +430,7 @@ const TaskDetail = () => {
                             </p>
                             <div className="files-container">
                                 {images[task.id] && images[task.id].map((image) => (
-                                    <img key={image.id} src={`http://localhost:8080/getfile?name=${encodeURIComponent(image.name)}`} />
+                                    <img key={image.id} src={`${API_URL}/getfile?name=${encodeURIComponent(image.name)}`} />
                                 ))}
                             </div>
                             <br />
@@ -359,7 +440,7 @@ const TaskDetail = () => {
                                     <div className="files-container">
                                     {files[task.id].map((file, index) => (
                                         <div key={file.id} className="file-item">
-                                            <a href={`http://localhost:8080/getfile?name=${encodeURIComponent(file.name)}&isDownload=true`} download>
+                                            <a href={`${API_URL}/getfile?name=${encodeURIComponent(file.name)}&isDownload=true`} download>
                                             Файл {index + 1}
                                             </a>
                                         </div>

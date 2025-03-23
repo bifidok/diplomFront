@@ -8,6 +8,7 @@ const Auth = () => {
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState('');
     const navigate = useNavigate();
+    const API_URL = process.env.REACT_APP_API_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -25,7 +26,7 @@ const Auth = () => {
             return;
         }
         try {
-            const response = await axiosInstance.post('http://localhost:8080/login', { login, password });
+            const response = await axiosInstance.post(`${API_URL}/login`, { login, password });
             ;
             if (response.status === 200) {
                 // Успешная аутентификация, можно перенаправить пользователя

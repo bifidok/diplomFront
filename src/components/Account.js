@@ -7,11 +7,12 @@ const Account = () => {
     const [accountDetails, setAccountDetails] = useState(null); // Состояние для хранения данных AccountDetails
     const [loading, setLoading] = useState(true); // Состояние загрузки
     const [error, setError] = useState(null); // Состояние ошибки
+    const API_URL = process.env.REACT_APP_API_URL;
 
     // Загрузка данных с сервера
     useEffect(() => {
         axiosInstance
-            .get('http://localhost:8080/account')
+            .get(`${API_URL}/account`)
             .then((response) => {
                 console.log('Данные с сервера:', response.data);
                 setAccountDetails(response.data); // Сохраняем данные в состояние
