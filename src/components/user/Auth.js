@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from './AxiosConfig';
-import '../css/LoginForm.css'; // Добавьте стили, если нужно
+import axiosInstance from '../AxiosConfig';
+import '../../css/user/LoginForm.css'; // Добавьте стили, если нужно
 
-const Register = () => {
+const Auth = () => {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState('');
@@ -25,19 +25,19 @@ const Register = () => {
             setErrors(newErrors); // Устанавливаем ошибки
             return;
         }
-
         try {
-            const response = await axiosInstance.post(`${API_URL}/register`, { login, password });
+            const response = await axiosInstance.post(`${API_URL}/login`, { login, password });
             ;
             if (response.status === 200) {
-                navigate('/');
+                // Успешная аутентификация, можно перенаправить пользователя
+                navigate('/'); // Перенаправление на главную страницу или другую
             }
         } catch (err) {
             // Обработка ошибок
             if (err.response && err.response.data) {
                 setErrors(err.response.data); // Установка сообщения об ошибке
             } else {
-                setErrors('Произошла ошибка при регистрации');
+                setErrors('Произошла ошибка при входе');
             }
         }
     };
@@ -52,7 +52,7 @@ const Register = () => {
                 <button onClick={() => handleHomeButton()}>На главную</button>
             </div>
             <div className="login-form-container">
-                <h2>Регистрация</h2>
+                <h2>Авторизация</h2>
                 <form onSubmit={handleSubmit}>
                     <label>Логин:</label>
                     <div className="input-group">
@@ -77,11 +77,11 @@ const Register = () => {
                             ))}
                         </ul>
                     )}
-                    <button type="submit">Регистрация</button>
+                    <button type="submit">Войти</button>
                 </form>
             </div>
         </div>
     );
 };
 
-export default Register;
+export default Auth;

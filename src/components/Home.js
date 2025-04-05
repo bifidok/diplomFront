@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import '../css/Home.css';
-import '../css/Auth.css';
+import '../css/user/Auth.css';
 import '../css/App.css';
 
 const Home = () => {

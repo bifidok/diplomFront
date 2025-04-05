@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import '../css/Files.css';
-import '../css/ModalWindow.css';
+import '../../css/Files.css';
+import '../../css/ModalWindow.css';
 import CodeMirror from '@uiw/react-codemirror';
 import { java } from '@codemirror/lang-java';
 import { cpp } from '@codemirror/lang-cpp';
 import { python } from '@codemirror/lang-python';
 import { csharp } from '@replit/codemirror-lang-csharp';
-import { initialTimeLeft } from './Config';
-import axiosInstance from "./AxiosConfig";
+import { initialTimeLeft } from '../Config';
+import axiosInstance from "../AxiosConfig";
 
 class CompilableAnswer {
     constructor(answer, lang) {

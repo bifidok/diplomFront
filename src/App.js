@@ -1,11 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import TaskList from './components/TaskList';
-import TaskDetail from './components/TaskDetail';
+import TaskList from './components/task/TaskList';
+import TaskDetail from './components/task/TaskDetail';
 import Home from './components/Home';
-import Auth from './components/Auth';
-import Register from './components/Register';
-import Account from './components/Account';
+import Auth from './components/user/Auth';
+import Register from './components/user/Register';
+import Account from './components/user/Account';
 
 function App() {
     return (
