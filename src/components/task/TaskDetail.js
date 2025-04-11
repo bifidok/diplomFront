@@ -99,7 +99,7 @@ const TaskDetail = () => {
             if (isTimerRunning && !isSubmitted) {
                 setTimeLeft(prevTime => prevTime - 1);
             }
-        }, 1000);
+        }, 3600);
 
         return () => clearInterval(interval);
     }, [isTimerRunning, isSubmitted]); // Пустой массив зависимостей
